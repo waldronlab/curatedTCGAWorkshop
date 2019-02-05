@@ -6,7 +6,7 @@ Version: 0.3.0
 Authors@R: c(person("Marcel", "Ramos", email = "marcel.ramos@roswellpark.org",
     role = c("aut", "cre")),
     person("Levi", "Waldron", email = "lwaldron.research@gmail.com",
-    role = "ctb")
+    role = "ctb"))
 Depends:
     R (>= 3.5.0),
     Biobase (>= 2.40),

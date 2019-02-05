@@ -69,11 +69,16 @@ To install the workshop dependencies, assuming you have already
 [installed Bioconductor](https://www.bioconductor.org/install):
 
 ```{r, eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
 BiocManager::install(
-    c("curatedTCGAData", "mirbase.db", "EnsDb.Hsapiens.v86")
+    c("org.Hs.eg.db", "mirbase.db", "EnsDb.Hsapiens.v86")
 )
+
 BiocManager::install(
-    "waldronlab/MultiAssayExperimentWorkshop"
+    "waldronlab/MultiAssayExperimentWorkshop",
+    dependencies = TRUE
 )
 ```
 
@@ -82,18 +87,15 @@ automatically by BiocManager.
 
 Here is a list of packages required for this workshop:
 
+* [curatedTCGAData](https://bioconductor.org/packages/curatedTCGAData)
 * [MultiAssayExperiment](https://bioconductor.org/packages/MultiAssayExperiment)
+* [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment)
 * [GenomicRanges](https://bioconductor.org/packages/GenomicRanges)
 * [RaggedExperiment](https://bioconductor.org/packages/RaggedExperiment)
-* [curatedTCGAData](https://bioconductor.org/packages/curatedTCGAData)
-* [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment)
 * [TCGAutils](https://bioconductor.org/packages/TCGAutils)
 * [UpSetR](https://bioconductor.org/packages/UpSetR)
 * [AnnotationFilter](https://bioconductor.org/packages/AnnotationFilter)
 * [EnsDb.Hsapiens.v86](https://bioconductor.org/packages/EnsDb.Hsapiens.v86)
-* [survival](https://cran.r-project.org/package=survival)
-* [survminer](https://cran.r-project.org/package=survminer)
-* [pheatmap](https://cran.r-project.org/package=pheatmap)
 
 ```{r, eval = FALSE}
 library(MultiAssayExperiment)
