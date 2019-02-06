@@ -77,7 +77,7 @@ BiocManager::install(
 )
 
 BiocManager::install(
-    "waldronlab/MultiAssayExperimentWorkshop",
+    "waldronlab/curatedTCGAWorkshop",
     dependencies = TRUE
 )
 ```
@@ -171,6 +171,34 @@ integrative MultiAssayExperiment data class. Where other platforms provide
 fragmented datasets, curatedTCGAData ensures that all data provided is matched
 and accounted for within the phenotypic metadata.
 
+A list of Cancer types available from TCGA in `curatedTCGAData` using
+`TCGAutils::diseaseCodes`:
+
+```{r}
+data("diseaseCodes")
+knitr::kable(diseaseCodes, align = "l", escape = FALSE,
+    caption = "List of available cancer types from curatedTCGAData") %>%
+    kable_styling(bootstrap_options = c("hover", "striped", "responsive"),
+    full_width = FALSE)
+```
+
+```{r, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
+knitr::read_chunk("dataTypesHTML.R")
+```
+
+```{r, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
+<<loadTypes>>
+```
+
+A descriptive table of available 'omics types in `curatedTCGAData`
+(thanks to Ludwig G. `@lgeistlinger`):
+
+```{r}
+## from dataTypesHTML.R
+<<dataTypesTable>>
+```
+
+
 ## `TCGAutils`
 
 Available operations in TCGAutils and MultiAssayExperiment enable user-friendly
@@ -184,12 +212,36 @@ provides convenience / helper functions in three major areas:
 2) translation and interpretation of TCGA identifiers
 3) identification and separation of samples
 
+```{r, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
+knitr::read_chunk("TCGAutils_cheatHTML.R")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+<<cheatsheet>>
+```
+
+```{r}
+## from TCGAutils_cheatHTML.R script
+<<kable_utils>>
+```
+
 To better understand how it all fits together, this schematic shows the
 relationship among all as part of the curatedTCGAData pipeline.
 
 ```{r, echo = FALSE, fig.cap = "Schematic of curatedTCGAData Pipeline"}
 knitr::include_graphics("TCGAMAEPipeline20190204.png")
 ```
+
+# Using docker containers
+
+We've made it easy to get started with the development version of Bioconductor
+(recommended) using docker containers. 
+Bioconductor regularly publishes
+[docker images](http://bioconductor.org/help/docker/) for Bioconductor release
+and devel versions, we've created a script to load either image using docker.
+
+Refer to the GitHub repository at https://github.com/waldronlab/bioconductor_devel
+to use run the images.
 
 # Major Data Classes
 
@@ -275,7 +327,6 @@ supporting row and column names and subsetting can be used as an element of a
 knitr::include_graphics("MultiAssayExperiment.png")
 ```
 
-
 # Working with MultiAssayExperiment
 
 ## API cheat sheet
@@ -291,7 +342,8 @@ To start from scratch building your own MultiAssayExperiment, see the package
 The package [cheat sheet](https://bioconductor.org/packages/release/bioc/vignettes/MultiAssayExperiment/inst/doc/MultiAssayExperiment_cheatsheet.pdf) is also helpful.
 
 If anything is unclear, please ask a question at
-https://support.bioconductor.org/ or create an issue on the [MultiAssayExperiment issue tracker](https://github.com/waldronlab/MultiAssayExperiment/issues).
+https://support.bioconductor.org/ or create an issue on the
+[curatedTCGAData issue tracker](https://github.com/waldronlab/curatedTCGAData/issues).
 
 # The Cancer Genome Atlas (TCGA) as MultiAssayExperiment objects
 
@@ -299,14 +351,12 @@ Most unrestricted TCGA data are available as MultiAssayExperiment objects from
 the `curatedTCGAData` package. This represents a lot of harmonization!
 
 ```{r}
-library(curatedTCGAData)
 curatedTCGAData("ACC")
 suppressMessages({
-    acc <- curatedTCGAData("ACC",
-        assays = c("miRNASeqGene", "RPPAArray", "Mutation", "RNASeq2GeneNorm", "CNVSNP"),
-        dry.run = FALSE)
+    (acc <- curatedTCGAData("ACC",
+        assays = c("miRNASeqGene", "RPPAArray", "Mutation",
+            "RNASeq2GeneNorm", "CNVSNP"), dry.run = FALSE))
 })
-acc
 ```
 
 These objects contain most unrestricted TCGA assay and clinical / pathological
@@ -342,7 +392,7 @@ The `simplifyTCGA` function combines all of the above operations to create
 a more managable `MultiAssayExperiment` object and using
 `RangedSummarizedExperiment` assays where possible.
 
-```{r}
+```{r, eval = FALSE}
 (simpa <- TCGAutils::simplifyTCGA(acc))
 ```
 
@@ -403,7 +453,7 @@ These provide exercises and solutions using the `miniACC` dataset.
 The built-in `upsetSamples` creates an "upset" Venn diagram to answer this
 question:
 
-```{r}
+```{r, eval = FALSE}
 upsetSamples(miniACC)
 ```
 
@@ -420,16 +470,16 @@ Create a Kaplan-meier plot, using pathology_N_stage as a stratifying variable.
 The colData provides clinical data for things like a Kaplan-Meier plot for
 overall survival stratified by nodal stage.
 
-```{r}
+```{r, eval = FALSE}
 Surv(miniACC$days_to_death, miniACC$vital_status)
 ```
 
 And remove any patients missing overall survival information:
-```{r}
+```{r, eval = FALSE}
 miniACCsurv <- miniACC[, complete.cases(miniACC$days_to_death, miniACC$vital_status), ]
 ```
 
-```{r}
+```{r, eval = FALSE}
 fit <- survfit(Surv(days_to_death, vital_status) ~ pathology_N_stage, data = colData(miniACCsurv))
 ggsurvplot(fit, data = colData(miniACCsurv), risk.table = TRUE)
 ```
@@ -438,7 +488,7 @@ ggsurvplot(fit, data = colData(miniACCsurv), risk.table = TRUE)
 
 Choose the *EZH2* gene for demonstration. This subsetting will drop assays with
 no row named EZH2:
-```{r}
+```{r, eval = FALSE}
 wideacc = wideFormat(miniACC["EZH2", , ],
     colDataCols=c("vital_status", "days_to_death", "pathology_N_stage"))
 wideacc$y = Surv(wideacc$days_to_death, wideacc$vital_status)
@@ -448,7 +498,7 @@ head(wideacc)
 Perform a multivariate Cox regression with *EZH2* copy number (gistict),
 log2-transformed *EZH2* expression (RNASeq2GeneNorm), and nodal status
 (pathology_N_stage) as predictors:
-```{r}
+```{r, eval = FALSE}
 coxph(Surv(days_to_death, vital_status) ~ gistict_EZH2 + log2(RNASeq2GeneNorm_EZH2) + pathology_N_stage,
       data=wideacc)
 ```
@@ -463,163 +513,8 @@ For further detail, see the main MultiAssayExperiment vignette.
 
 <p style="text-align: right;"> [back to top](#overview-of-key-data-classes) </p>
 
-## Correlation between RNA-seq and copy number
-
-**Part 1**
-
-For all genes where there is both recurrent copy number (gistict assay) and
-RNA-seq, calculate the correlation between log2(RNAseq + 1) and copy number.
-Create a histogram of these correlations. Compare this with the histogram of
-correlations between all *unmatched* gene - copy number pairs.
-
-**Solution**
-
-First, narrow down `miniACC` to only the assays needed:
-
-```{r}
-subacc <- miniACC[, , c("RNASeq2GeneNorm", "gistict")]
-```
-
-Align the rows and columns, keeping only samples with both assays available:
-```{r}
-subacc <- intersectColumns(subacc)
-subacc <- intersectRows(subacc)
-```
-
-Create a list of numeric matrices:
-```{r}
-subacc.list <- assays(subacc)
-```
-
-Log-transform the RNA-seq assay:
-```{r}
-subacc.list[[1]] <- log2(subacc.list[[1]] + 1)
-```
-
-Transpose both, so genes are in columns:
-```{r}
-subacc.list <- lapply(subacc.list, t)
-```
-
-Calculate the correlation between columns in the first matrix and columns in the
-second matrix:
-
-```{r}
-corres <- cor(subacc.list[[1]], subacc.list[[2]])
-```
-
-And finally, create the histograms:
-```{r}
-hist(diag(corres))
-hist(corres[upper.tri(corres)])
-```
-
-**Part 2**
-
-For the gene with highest correlation to copy number, make a box plot of log2
-expression against copy number.
-
-**Solution**
-
-First, identify the gene with highest correlation between expression and copy
-number:
-```{r}
-which.max(diag(corres))
-```
-
-You could now make the plot by taking the EIF4E columns from each element of the
-list subacc.list *list* that was extracted from the subacc
-*MultiAssayExperiment*, but let's do it by subsetting and extracting from the
-*MultiAssayExperiment*:
-
-```{r}
-df <- wideFormat(subacc["EIF4E", , ])
-head(df)
-```
-
-```{r}
-boxplot(RNASeq2GeneNorm_EIF4E ~ gistict_EIF4E,
-        data=df, varwidth=TRUE,
-        xlab="GISTIC Relative Copy Number Call",
-        ylab="RNA-seq counts")
-```
-
-<p style="text-align: right;"> [back to top](#overview-of-key-data-classes) </p>
-
-## Identifying correlated principal components
-
-Perform Principal Components Analysis of each of the five assays, using samples
-available on each assay, log-transforming RNA-seq data first.  Using the first
-10 components, calculate Pearson correlation between all scores and plot these
-correlations as a heatmap to identify correlated components across assays.
-
-**Solution**
-
-Here's a function to simplify doing the PCAs:
-```{r}
-getLoadings <- function(x, ncomp=10, dolog=FALSE, center=TRUE, scale.=TRUE){
-  if(dolog){
-    x <- log2(x + 1)
-  }
-  pc = prcomp(x, center=center, scale.=scale.)
-  return(t(pc$rotation[, 1:10]))
-}
-```
-
-Although it would be possible to do the following with a loop, the different
-data types do require different options for PCA (e.g. mutations are a 0/1 matrix
-with 1 meaning there is a somatic mutation, and gistict varies between -2 for
-homozygous loss and 2 for a genome doubling, so neither make sense to scale and
-center). So it is just as well to do the following one by one, concatenating
-each PCA results to the MultiAssayExperiment:
-
-```{r}
-miniACC2 <- intersectColumns(miniACC)
-miniACC2 <- c(miniACC2, rnaseqPCA=getLoadings(assays(miniACC2)[[1]], dolog=TRUE), mapFrom=1L)
-miniACC2 <- c(miniACC2, gistictPCA=getLoadings(assays(miniACC2)[[2]], center=FALSE, scale.=FALSE), mapFrom=2L)
-miniACC2 <- c(miniACC2, proteinPCA=getLoadings(assays(miniACC2)[[3]]), mapFrom=3L)
-miniACC2 <- c(miniACC2, mutationsPCA=getLoadings(assays(miniACC2)[[4]], center=FALSE, scale.=FALSE), mapFrom=4L)
-miniACC2 <- c(miniACC2, miRNAPCA=getLoadings(assays(miniACC2)[[5]]), mapFrom=5L)
-```
-
-Now subset to keep *only* the PCA results:
-```{r}
-miniACC2 <- miniACC2[, , 6:10]
-experiments(miniACC2)
-```
-
-Note, it would be equally easy (and maybe better) to do PCA on all samples
-available for each assay, then do intersectColumns at this point instead.
-
-Now, steps for calculating the correlations and plotting a heatmap:
-* Use *wideFormat* to paste these together, which has the nice property of
-adding assay names to the column names.
-* The first column always contains the sample identifier, so remove it.
-* Coerce to a matrix
-* Calculate the correlations, and take the absolute value (since signs of
-principal components are arbitrary)
-* Set the diagonals to NA (each variable has a correlation of 1 to itself).
-```{r}
-df <- wideFormat(miniACC2)[, -1]
-mycors <- cor(as.matrix(df))
-mycors <- abs(mycors)
-diag(mycors) <- NA
-```
-
-To simplify the heatmap, show only components that have at least one correlation
-greater than 0.5.
-```{r}
-has.high.cor <- apply(mycors, 2, max, na.rm=TRUE) > 0.5
-mycors <- mycors[has.high.cor, has.high.cor]
-pheatmap::pheatmap(mycors)
-```
-
-The highest correlation present is between PC2 of the RNA-seq assay, and PC1 of
-the protein assay.
-
-<p style="text-align: right;"> [back to top](#overview-of-key-data-classes) </p>
-
 ## Annotating with ranges
+
 This section doesn't use the `TCGAutils` shortcuts, and is more generally applicable.
 
 Convert all the `ExperimentList` elements in `miniACC`  to
@@ -652,11 +547,11 @@ getrr <- function(identifiers, EnsDbFilterFunc=AnnotationFilter::SymbolFilter) {
 
 For example:
 ```{r}
-getrr(rownames(miniACC)[[1]])
+# getrr(rownames(miniACC)[[1]])
 ```
 
 Use this to set the rowRanges of experiments 1-4 with these GRangesList objects
-```{r}
+```{r, eval = FALSE}
 rseACC <- miniACC
 withRSE <- c(1:3, 5)
 for (i in withRSE){
@@ -665,14 +560,14 @@ for (i in withRSE){
 ```
 
 Note that the class of experiments 1-4 is now `RangedSummarizedExperiment`:
-```{r}
+```{r, eval = FALSE}
 experiments(rseACC)
 ```
 
 With ranged objects in the MultiAssayExperiment, you can then do subsetting by
 ranges. For example, select all genes on chromosome 1 for the four
 *rangedSummarizedExperiment* objects:
-```{r}
+```{r, eval = FALSE}
 rseACC[GRanges(seqnames="1:1-1e9"), , withRSE]
 ```
 
