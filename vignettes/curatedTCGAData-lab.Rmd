@@ -1,9 +1,9 @@
 ---
-title: "curatedTCGAData and TCGAutils"
+title: "curatedTCGAData and TCGAutils: integration of TCGA in Bioconductor"
 author: "Marcel Ramos, Ludwig Geistlinger, and Levi Waldron"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
-  %\VignetteIndexEntry{Analysis and Resources of Multi-Assay Experiments}
+  %\VignetteIndexEntry{curatedTCGAData: integration of TCGA in Bioconductor}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
@@ -59,7 +59,7 @@ browseURL("https://tinyurl.com/curatedTCGAWorkshop")
 
 ## Workshop Participation
 
-Students will have a chance to build a `MultiAssayExperiment` object
+Participants will have a chance to build a `MultiAssayExperiment` object
 from scratch, and will also work with more complex objects provided
 by the `curatedTCGAData` package.
 
@@ -72,6 +72,12 @@ To install the workshop dependencies, assuming you have already
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
+## Bioconductor 3.8 Stable Release
+BiocManager::install(version = "3.8")
+```
+
+
+```{r, eval = FALSE}
 BiocManager::install(
     c("org.Hs.eg.db", "mirbase.db", "EnsDb.Hsapiens.v86")
 )
@@ -86,7 +92,7 @@ BiocManager::install(
 Note, the first line installs experimental data packages not installed
 automatically by BiocManager.
 
-Here is a list of packages required for this workshop:
+Here is a list of Bioconductor packages required for this workshop:
 
 * [curatedTCGAData](https://bioconductor.org/packages/curatedTCGAData)
 * [MultiAssayExperiment](https://bioconductor.org/packages/MultiAssayExperiment)
@@ -139,8 +145,8 @@ suppressPackageStartupMessages({
 
 1h 30m total
 
-| Activity                            | Time    |
-|-------------------------------------|---------|
+| Activity                  | Time    |
+|---------------------------|---------|
 | Overview of key packages | 30 min |
 | curatedTCGAData multi-assay dataset | 30 min |
 | TCGAutils functionality | 30 min |
@@ -165,22 +171,21 @@ and coordination of TGCA data
 ## `curatedTCGAData`
 
 Many tools exist for accessing and downloading The Cancer Genome Atlas (TCGA)
-data. These include but are not limited to RTCGAToolbox, GenomicDataCommons,
-TCGAbiolinks, cBioPortal, and Broad GDAC Firehose. These tools encompass a
-spectrum of strengths in ease-of-use, integration, and completeness of data.
-Few tools provide an integrative and user-friendly representation of TCGA data
-in a widely used analysis platform such as Bioconductor.
+data. These include but are not limited to RTCGAToolbox, GenomicDataCommons
+(package and website), TCGAbiolinks, cBioPortal, and Broad GDAC Firehose. These
+tools encompass a spectrum of strengths in ease-of-use, integration, and
+completeness of data. Few tools provide an integrative and user-friendly
+representation of TCGA data in a widely used analysis platform such as
+Bioconductor.
 
 The `curatedTCGAData` experiment data package provides on-the-fly construction
 of TCGA datasets for 33 different cancer types. It facilitates access and
 integration of TCGA data by providing multi-'omics data objects using the
-integrative MultiAssayExperiment data class. Where other platforms provide
-fragmented datasets, curatedTCGAData ensures that all data provided is matched
+MultiAssayExperiment data class. Where other platforms provide
+fragmented datasets, `curatedTCGAData` ensures that all data provided is matched
 and accounted for within the phenotypic metadata.
 
-A list of Cancer types available from TCGA in `curatedTCGAData` using
-`TCGAutils::diseaseCodes`:
-
+A list of available cancer types can be obtained from `TCGAutils::diseaseCodes`:
 
 ```{r}
 data("diseaseCodes")
@@ -211,16 +216,22 @@ A descriptive table of available 'omics types in `curatedTCGAData`
 
 ## `TCGAutils`
 
-Available operations in TCGAutils and MultiAssayExperiment enable user-friendly
-operations for subsetting, separating, converting, and reshaping of sample and
-feature TCGA data.
+`TCGAutils` is a companion package that enhances `curatedTCGAData` by allowing
+additional exploration and manipulation of samples and metadata in rows and
+columns. 
 
-TCGAutils works generally with TCGA data and with curatedTCGAData products. It
-provides convenience / helper functions in three major areas:
+Available operations in `TCGAutils` and `MultiAssayExperiment` enable
+user-friendly operations for subsetting, separating, converting, and reshaping
+of sample and feature TCGA data.
+
+TCGAutils was developed specifically for TCGA data and for curatedTCGAData
+products. It provides convenience / helper functions in three major areas:
 
 1) conversion / summarization of row annotations to genomic ranges
 2) translation and interpretation of TCGA identifiers
 3) identification and separation of samples
+
+along with additional reference data sets to explore TCGA data.
 
 ```{r, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 knitr::read_chunk("TCGAutils_cheatHTML.R")
@@ -242,16 +253,30 @@ relationship among all as part of the curatedTCGAData pipeline.
 knitr::include_graphics("TCGAMAEPipeline20190204.png")
 ```
 
-# Using docker containers
+# Using Docker containers
 
-We've made it easy to get started with the development version of Bioconductor
-(recommended) using docker containers. 
-Bioconductor regularly publishes
-[docker images](http://bioconductor.org/help/docker/) for Bioconductor release
-and devel versions, we've created a script to load either image using docker.
+Getting started with the proper installation of R and Bioconductor can
+be tricky. 
 
-Refer to the GitHub repository at https://github.com/waldronlab/bioconductor_devel
-to use run the images.
+| Bioconductor version | R Version |
+|----------------------|-----------|
+| `Bioc-release 3.8` | R release (`>= 3.5.0` and `< 3.6.0`) |
+| `Bioc-devel 3.9`   | R devel (`>= 3.6.0`) |
+
+How to install and manage different package version directories? 
+See http://bioconductor.org/install/
+
+*Alternatively*
+
+We've made it easy to get started with the release or development version of
+Bioconductor using Docker containers. Bioconductor regularly publishes
+[docker images](http://bioconductor.org/help/docker/) for both Bioconductor
+release and devel versions, we've created a script to load either image using
+Docker.
+
+Refer to the GitHub repository at
+https://github.com/waldronlab/bioconductor_devel to use the images and skip
+the management of installation directories and versioning.
 
 # Major Data Classes
 
@@ -353,7 +378,9 @@ The package [cheat sheet](https://bioconductor.org/packages/release/bioc/vignett
 
 If anything is unclear, please ask a question at
 https://support.bioconductor.org/ or create an issue on the
-[curatedTCGAData issue tracker](https://github.com/waldronlab/curatedTCGAData/issues).
+[MultiAssayExperiment](https://github.com/waldronlab/MultiAssayExperiment/issues)
+or the [curatedTCGAData](https://github.com/waldronlab/curatedTCGAData/issues)
+issue tracker.
 
 # The Cancer Genome Atlas (TCGA) as MultiAssayExperiment objects
 
@@ -621,4 +648,17 @@ the genomic location of those microRNA, or the locations of their predicted
 targets, but we don't do it here. Assigning genomic ranges of microRNA targets
 would be an easy way to subset them according to their targets.
 
-<p style="text-align: right;"> [back to top](#overview-of-key-data-classes) </p>
+<p style="text-align: right;"> [back to top](#overview-of-key-packages) </p>
+
+# Citing MultiAssayExperiment
+
+```{r}
+citation("MultiAssayExperiment")
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
