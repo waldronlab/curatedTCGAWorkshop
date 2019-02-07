@@ -1,6 +1,6 @@
 ---
 title: "curatedTCGAData and TCGAutils"
-author: "Marcel Ramos and Levi Waldron"
+author: "Marcel Ramos, Ludwig Geistlinger, and Levi Waldron"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
   %\VignetteIndexEntry{Analysis and Resources of Multi-Assay Experiments}
@@ -19,6 +19,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+options(knitr.table.format = "html", knitr.kable.NA = '')
 ```
 
 # Instructor names and contact information
@@ -78,7 +80,8 @@ BiocManager::install(
 
 BiocManager::install(
     "waldronlab/curatedTCGAWorkshop",
-    dependencies = TRUE
+    dependencies = TRUE,
+    build_vignettes = TRUE
 )
 ```
 
@@ -110,6 +113,9 @@ library(UpSetR)
 library(mirbase.db)
 library(EnsDb.Hsapiens.v86)
 library(org.Hs.eg.db)
+library(readxl)
+library(dplyr)
+library(kableExtra)
 ```
 
 ```{r, echo = FALSE}
@@ -125,6 +131,9 @@ suppressPackageStartupMessages({
     library(mirbase.db)
     library(EnsDb.Hsapiens.v86)
     library(org.Hs.eg.db)
+    library(readxl)
+    library(dplyr)
+    library(kableExtra)
 })
 ```
 
@@ -174,12 +183,15 @@ and accounted for within the phenotypic metadata.
 A list of Cancer types available from TCGA in `curatedTCGAData` using
 `TCGAutils::diseaseCodes`:
 
+
 ```{r}
 data("diseaseCodes")
 knitr::kable(diseaseCodes, align = "l", escape = FALSE,
     caption = "List of available cancer types from curatedTCGAData") %>%
-    kable_styling(bootstrap_options = c("hover", "striped", "responsive"),
-    full_width = FALSE)
+    kableExtra::kable_styling(
+        bootstrap_options = c("hover", "striped", "responsive"),
+        full_width = FALSE
+    )
 ```
 
 ```{r, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE}

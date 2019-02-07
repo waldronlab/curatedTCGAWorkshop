@@ -1,11 +1,5 @@
 ## @knitr loadTypes
 
-library(readxl)
-library(dplyr)
-library(kableExtra)
-
-options(knitr.table.format = "html", knitr.kable.NA = '')
-
 rawdat <- read_excel("DataTypesExplained.xlsx", skip = 1)
 
 dataTypes <- rawdat[is.na(rawdat[[1]]), 2:3]
