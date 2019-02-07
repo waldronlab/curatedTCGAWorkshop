@@ -48,9 +48,7 @@ https://github.com/waldronlab/MultiAssayExperimentWorkshop.
 Presentation slides are available at the link below:
 
 ```{r, eval = FALSE} 
-browseURL(
-"https://docs.google.com/presentation/d/17NS6BDXh1uZYKlF81rZ_fAeEX9LzB2ruf7lK0AJi6qo/edit?usp=sharing"
-)
+browseURL("https://tinyurl.com/curatedTCGAWorkshop")
 ```
 
 ## Pre-requisites
@@ -139,13 +137,13 @@ suppressPackageStartupMessages({
 
 ## Time outline
 
-1h total
+1h 30m total
 
 | Activity                            | Time    |
 |-------------------------------------|---------|
 | Overview of key packages | 30 min |
-| curatedTCGAData multi-assay dataset | 15 min |
-| TCGAutils functionality | 15 min |
+| curatedTCGAData multi-assay dataset | 30 min |
+| TCGAutils functionality | 30 min |
 
 
 # Workshop goals and objectives
@@ -371,6 +369,9 @@ suppressMessages({
 })
 ```
 
+_Note_. Methylation files will differ depending on Bioconductor version
+(release vs devel)
+
 These objects contain most unrestricted TCGA assay and clinical / pathological
 data, as well as material curated from the supplements of published TCGA primary
 papers at the end of the colData columns:
@@ -380,7 +381,39 @@ dim(colData(acc))
 tail(colnames(colData(acc)), 10)
 ```
 
-The `TCGAutils` package provides additional helper functions, see below. 
+The `getClinicalNames` function will display relevant clinical column names
+obtained from `RTCGAToolbox` that are commonly found in other cancer types.
+
+```{r}
+(acccol <- getClinicalNames("ACC"))
+
+all(acccol %in% names(colData(acc)))
+
+head(colData(acc)[, acccol])
+```
+
+Reference documentation in Firehose Broad GDAC:
+
+```{r}
+browseURL("https://dx.doi.org/10.7908/C1RX9BD4")
+```
+
+
+## Pan-Cancer Data
+
+`curatedTCGAData` works to build datasets on-the-fly including Pan-Cancer
+datasets where assays from two or more particular cancer types need to be
+combined. Here we demonstrate a Pan-Cancer `MultiAssayExperiment` using
+ovarian and breast cancer data.
+
+```{r}
+suppressMessages({
+    ovbrca <- curatedTCGAData(diseaseCode = c("OV", "BRCA"),
+        assays = c("RNA*", "Mutation"), dry.run = FALSE)
+})
+ovbrca
+```
+
 
 # Utilities for TCGA
 
