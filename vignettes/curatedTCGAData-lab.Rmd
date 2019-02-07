@@ -394,7 +394,7 @@ head(colData(acc)[, acccol])
 
 Reference documentation in Firehose Broad GDAC:
 
-```{r}
+```{r, eval=FALSE}
 browseURL("https://dx.doi.org/10.7908/C1RX9BD4")
 ```
 
